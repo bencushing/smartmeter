@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  {% load static %}
+  <title>SMAAAAAAAART METER</title>
+  <script type="text/javascript" src="https://rawgit.com/kimmobrunfeldt/progressbar.js/1.0.0/dist/progressbar.js"></script>
+  <link rel="stylesheet" type="text/css" href="{% static 'smart_app/smart_app.css' %}" />
+  
+</head>
+
+<body>
+
+<link href="https://fonts.googleapis.com/css?family=Raleway:400,300,600,800,900" rel="stylesheet" type="text/css">
+<div id="container"></div>
+</div>
+
+  <script>
+	var bar = new ProgressBar.SemiCircle(container, {
+  strokeWidth: 6,
+  color: '#FFEA82',
+  trailColor: '#eee',
+  trailWidth: 1,
+  easing: 'easeInOut',
+  duration: 1400,
+  svgStyle: null,
+  text: {
+    value: '',
+    alignToBottom: false
+  },
+  from: {color: '#FFEA82'},
+  to: {color: '#ED6A5A'},
+  // Set default step function for all animate calls
+  step: (state, bar) => {
+    bar.path.setAttribute('stroke', state.color);
+    var value = Math.round(bar.value() * 100);
+    if (value === 0) {
+      bar.setText('');
+    } else {
+      bar.setText(value);
+    }
+
+    bar.text.style.color = state.color;
+  }
+});
+bar.text.style.fontFamily = '"Raleway", Helvetica, sans-serif';
+bar.text.style.fontSize = '2rem';
+
+
+function GetPulseRate()
+{
+	var request = new XMLHttpRequest();
+
+	request.open('GET', 'http://192.168.1.22/pulserate', true);
+	request.onload = function () {
+
+		// ToDo: why am I having to parse twice???
+		var raw = JSON.parse(this.response);
+		console.log(raw);
+		
+		var jsondata = JSON.parse(raw);
+
+		if (request.status >= 200 && request.status < 400) {
+			bar.animate(CalculateRate(jsondata.s, jsondata.ms));
+		} else {
+		console.log('error');
+	}
+
+}
+
+request.send()
+}
+
+
+setInterval(GetPulseRate,1000);
+
+
+
+
+function CalculateRate(s, ms)
+{
+	rate = s + (ms / 1000000)
+	limiter = 11;
+	if (rate > limiter)
+		rate = limiter;
+	
+	percentage = (limiter - rate) / 10;
+	console.log(percentage);
+	return percentage;
+}
+
+  </script>
+</body>
+
+</html>

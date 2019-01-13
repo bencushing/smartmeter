@@ -1,0 +1,14 @@
+[Unit]
+Description=lightsensor daemon
+After=network.target
+
+[Service]
+ExecStart={{ venv_home }}/home/pi/smartmeter/bin {{ venv_home }}/lightsensor_daemon.py
+WorkingDirectory=/home/pi/smartmeter/smart_api/
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=pi
+
+[Install]
+WantedBy=multi-user.target
